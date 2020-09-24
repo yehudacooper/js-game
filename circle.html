@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Sample arcs example</title>
+</head>
+<body>
+<canvas id="DemoCanvas" width="300" height="600"></canvas>
+<script>
+var canvas = document.getElementById("DemoCanvas");
+var context = canvas.getContext("2d");
+// Set the style properties.
+context.fillStyle   = 'green';
+context.strokeStyle = 'red';
+context.lineWidth   = 2;
+context.beginPath();
+// Start from the top-left point.
+context.moveTo(20, 20); // give the (x,y) coordinates
+context.lineTo(190, 20);
+context.lineTo(20, 190);
+context.lineTo(20, 20);
+// Now fill the shape, and draw the stroke.
+context.fill();
+context.stroke();
+context.closePath();
+</script>
+</body> 
+</html>

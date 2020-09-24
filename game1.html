@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Crossing Game</title>
+    <style>
+        canvas {
+            border: 2px solid black;
+            /* background-color: red; */
+        }
+    </style>
+</head>
+
+<body >
+    <h1>Crossing Game</h1>
+    <canvas id="myCanvas" width="1000" height="500"></canvas>
+    <script>
+        let canvas = document.getElementById("myCanvas");
+        let ctx = canvas.getContext("2d");
+        const screenWidth = 1000;
+        const screenHeight = 500;
+        const characterWidth = 50;
+        const characterHeight = 50;
+
+        class GameCharacter {
+            constructor(x, y, width, height, color,xspeed,yspeed) {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+                this.color = color;
+                this.xspeed = xspeed;
+                this.yspeed = yspeed;
+                this.maxSpeed = 4;
+
+            }
+            moveHorizontally() {
+                if(this.x > screenWidth - this.width || this.x <0){
+                    this.xspeed *= -1;
+                }
+              
+                this.x += this.xspeed;
+            }
+            moveVertically() {
+                if(this.y > screenHeight - this.height || this.y <0){
+                    this.yspeed *= -1;
+                }
+              
+                this.y += this.yspeed;
+            }
+        }
+        let player = new GameCharacter(0,screenHeight/2-characterHeight/2,characterWidth,characterHeight,"rgb(0,255,0)",0,0)
+        let target = new GameCharacter(screenWidth-60,screenHeight/2-characterHeight/2,characterWidth,characterHeight,"rgb(255,0,0)",0,0)
+
+        let enemies = [
+            new GameCharacter(60, 100, characterWidth,characterHeight, "rgb(0,0,255)",1,1),
+            new GameCharacter(250, 100,characterWidth,characterHeight, "rgb(0,0,255)",2,1),
+            new GameCharacter(450, 100,characterWidth,characterHeight, "rgb(0,0,255)",2,1),
+            new GameCharacter(650, 100,characterWidth,characterHeight, "rgb(0,0,255)",2,1),
+            new GameCharacter(850, 100,characterWidth,characterHeight, "rgb(0,0,255)",2,1),
+        ];
+
+        let sprites = {};
+
+        let loadSprites = function(){
+            sprites.background = new Image();
+            sprites.background.src =  "images/floor.png";
+
+            sprites.goal = new Image();
+            sprites.goal.src = "images/chest.png";
+
+            sprites.enemy = new Image();
+            sprites.enemy.src = "images/enemy.png";
+
+            sprites.player = new Image();
+            sprites.player.src = "images/hero.png";
+        }
+
+        let floor = new Image();
+        floor.src = "images/floor.png";
+        
+        
+        document.addEventListener("keydown",(event) =>{
+            const keyPressed = event.keyCode;
+            if(keyPressed == 39){
+                player.xspeed = player.maxSpeed;
+            }
+            if(keyPressed == 37){
+                player.xspeed = -player.maxSpeed;
+            }
+            if(keyPressed == 40){
+                player.yspeed = player.maxSpeed;
+            }
+            if(keyPressed == 38){
+                player.yspeed = -player.maxSpeed;
+            }
+        });
+          
+        let pause = false;
+        document.addEventListener("keydown",(event) =>{
+            const keyPressed2 = event.keyCode;
+            if(keyPressed2 == 32){
+                pause = !pause;
+            }});
+
+        
+        document.addEventListener("keyup",function(event){
+           player.xspeed = 0;
+           player.yspeed = 0;
+        });
+
+        let checkCollisions = (rect1,rect2) =>{
+            let xOverlap = Math.abs(rect1.x - rect2.x) <= 
+            (rect1.x <= rect2.x?rect1.width:rect2.width); 
+            let yOverlap = Math.abs(rect1.y - rect2.y) <= 
+            (rect1.y <= rect2.y?rect1.height:rect2.height); 
+
+            return xOverlap && yOverlap;
+        }
+
+        let draw = function () {
+            ctx.clearRect(0, 0, screenWidth, screenHeight);
+
+            ctx.drawImage(sprites.background,0,0);
+            ctx.drawImage(sprites.goal,screenWidth-60,screenHeight/2-characterHeight/2);
+            ctx.drawImage(sprites.player,player.x,player.y);
+
+
+
+            for (let enemy of enemies) {
+            ctx.drawImage(sprites.enemy,enemy.x,enemy.y);
+
+                // ctx.fillStyle = enemy.color;
+                // ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height)
+            }
+
+            // ctx.fillStyle = player.color;
+            // ctx.fillRect(player.x,player.y,player.width,player.height);
+
+            // ctx.fillStyle = target.color;
+            // ctx.fillRect(target.x,target.y,target.width,target.height);
+
+        }
+
+        let update = function () {
+            if(pause == false){
+
+            for(let enemy of enemies){
+                if(checkCollisions(player,enemy)){
+                    alert("you loose");
+                    player.x =0;
+                    player.xspeed = 0;
+                    enemy.y = 0;
+                    // for(let enemy of enemies){
+                    //     enemy.xspeed *=1.5;
+                    //     enemy.yspeed *=1.5;
+
+                    // }
+                }
+                if(player.x+50 >= target.x){
+                   alert("you win");
+                   player.x =50;
+                   player.xspeed = 0;
+
+
+               }
+                enemy.moveVertically();
+                enemy.moveHorizontally();
+            }
+            player.moveHorizontally();
+            player.moveVertically();
+
+        }
+        }
+
+        let step = function () {
+
+       
+            update();
+            draw();
+            window.requestAnimationFrame(step);
+        }
+        loadSprites();
+        step();
+
+
+    </script>
+</body>
+
+</html>
